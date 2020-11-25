@@ -89,9 +89,10 @@ class NB_BOW_OV:
     Get the conditional probability of each word given a class
     '''
     def getConditionalProb(self):
-        for c in self.classes:
-            for word in self.vocab:
-                self.conditional_prob[word] = math.log10((self.vocab[word][c] + self.smoothing)/(self.total_in_class[c] + (len(self.vocab) * self.smoothing)))
+        for word in self.vocab:
+            self.conditional_prob[word] = {self.classes[0] : float, self.classes[1] : float}
+            for c in self.classes:
+                self.conditional_prob[word][c] = (self.vocab[word][c] + self.smoothing)/(self.total_in_class[c] + (len(self.vocab) * self.smoothing))
 
     '''
     TODO
@@ -106,7 +107,7 @@ class NB_BOW_OV:
     
 nb = NB_BOW_OV()
 nb.train("training/covid_training.tsv")
-
+print(nb.conditional_prob)
 
     
 
