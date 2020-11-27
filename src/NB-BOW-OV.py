@@ -7,8 +7,8 @@ class NB_BOW_OV:
     Vocabulary is a dictionary which contains the number of times each word appears in factual and non-factual self.tweets.
     '''
     def __init__(self, smoothing=0.01):
-        self.classes = ["yes", "no"]    # Classes
-        self.vocab = {}                 # Dictionary contains {word : {self.classes[0] : num, self.classes[1] : num}} (e.g. {"this" : {"yes" : 1, "no" : 0}})
+        self.classes = ["yes", "no"]        # Classes
+        self.vocab = {}                     # Dictionary contains {word : {self.classes[0] : num, self.classes[1] : num}} (e.g. {"this" : {"yes" : 1, "no" : 0}})
         self.tweets = {}                    # Dictionary containing {self.tweets : factual} (e.g. {"this is a tweet" : "no"})
         self.smoothing = smoothing 
         self.total_in_class = {}
