@@ -1,5 +1,6 @@
 import csv
 import math
+import operator
 
 class NB_BOW_OV:
 
@@ -9,34 +10,35 @@ class NB_BOW_OV:
     def __init__(self, smoothing=0.01):
         self.classes = ["yes", "no"]        # Classes
         self.vocab = {}                     # Dictionary contains {word : {self.classes[0] : num, self.classes[1] : num}} (e.g. {"this" : {"yes" : 1, "no" : 0}})
-        self.tweets = {}                    # Dictionary containing {self.tweets : factual} (e.g. {"this is a tweet" : "no"})
+        self.training_tweets = {}                    # Dictionary containing {self.tweets : factual} (e.g. {"this is a tweet" : "no"})
         self.smoothing = smoothing 
         self.total_in_class = {}
         self.conditional_prob = {}
-        self.prob_class = {}   
+        self.prob_class = {}
+        self.test_tweets = {}   
 
 
     '''
     Train the model with the given training set.
     '''
     def train(self, training_set_name):
-        self.readFile(training_set_name)
+        self.readTrainingFile(training_set_name)
         self.constructVocabulary()
-        self.getTotalInClass()
-        self.getConditionalProb()
+        self.setTotalInClass()
+        self.setConditionalProb()
 
 
     '''
     Read the training file and get the self.tweets and their factuality
     '''
-    def readFile(self, filename):
-        f = open(filename, "r", encoding="utf-8")
+    def readTrainingFile(self, file_name):
+        f = open(file_name, "r", encoding="utf-8")
         reader = csv.reader(f, delimiter="\t")
 
         rows = list(reader)[1:]                 # We don't want the header for the training set
         twt = [r[1] for r in rows]              # Get the actual self.tweets
         factual = [r[2] for r in rows]          # Get whether the tweet is factual or not
-        self.tweets = dict(zip(twt, factual))   # Construct the tweet dictionary
+        self.training_tweets = dict(zip(twt, factual))   # Construct the tweet dictionary
         
         self.getProbClass(factual)              # Get the probability of each class
 
@@ -46,7 +48,7 @@ class NB_BOW_OV:
     '''
     def constructVocabulary(self):
         # Go through each tweet and their factuality in the training set
-        for twt, fact in self.tweets.items():
+        for twt, fact in self.training_tweets.items():
             splitTwt = list(twt.split(" "))        # Split the tweet into individual words
 
             # Go through each word in the tweet
@@ -63,13 +65,13 @@ class NB_BOW_OV:
                 elif fact == self.classes[1]:
                     self.vocab[word][self.classes[1]] += 1
         
-        self.getTotalInClass()
+        self.setTotalInClass()
 
     
     '''
     Get the total amount of words for each class
     '''
-    def getTotalInClass(self):
+    def setTotalInClass(self):
         for c in self.classes:
             total = 0
             for _, fact in self.vocab.items():
@@ -82,33 +84,85 @@ class NB_BOW_OV:
     '''
     def getProbClass(self, factual):
         for c in self.classes:
-            self.prob_class[c] = factual.count(c)/len(self.tweets)
+            self.prob_class[c] = factual.count(c)/len(self.training_tweets)
 
 
     '''
     Get the conditional probability of each word given a class
     '''
-    def getConditionalProb(self):
+    def setConditionalProb(self):
         for word in self.vocab:
             self.conditional_prob[word] = {self.classes[0] : float, self.classes[1] : float}
             for c in self.classes:
                 self.conditional_prob[word][c] = (self.vocab[word][c] + self.smoothing)/(self.total_in_class[c] + (len(self.vocab) * self.smoothing))
 
+
     '''
-    TODO
+    Read in test files
+    '''
+    def readTestFile(self, file_name):
+        f = open(file_name, "r", encoding="utf-8")
+        reader = csv.reader(f, delimiter="\t")
+
+        rows = list(reader)                             # We don't want the header for the training set
+        ids = [r[0] for r in rows]                      # Tweet ids
+        twt = [r[1] for r in rows]                      # Get the actual self.tweets
+        factual = [r[2] for r in rows]                  # Get whether the tweet is factual or not
+
+        # Get the values of the test set
+        for i, num in enumerate(ids):
+            self.test_tweets[num] = [twt[i], factual[i]]
+
+
+    '''
+    Get all words from document
+    '''
+    def getWords(self, document):
+        words = []
+
+        # Get each word and strip it
+        for entry in document:
+            splitTwt = list(entry.split(" "))
+            for w in splitTwt:
+                words.append(w.strip(".,?!@#:\"“-—\'()").lower())
+
+        return words
+
+
+    '''
+    Get the score of each class
+    '''
+    def getScore(self, document):
+        score = {}                          # Class score
+        prob_sum = {"yes" : 0, "no" : 0}    # Probability for each word in document
+
+        # For each class
+        for c in self.classes:
+            score[c] = math.log10(self.prob_class[c])
+
+            # Go through all the words in the document
+            for word in self.getWords(document):
+
+                # Only use words that are in the vocabulary (aka have a probability)
+                if word in self.conditional_prob:
+                    prob_sum[c] += math.log10(self.conditional_prob[word][c])
+
+            score[c] += prob_sum[c]         # Score
+
+        # Return the max score and its class
+        return (score["yes"], "yes") if score["yes"] >= score["no"] else (score["no"], "no")
+
+
+    '''
+    Predict the results for each entry in the test set
     '''
     def predict(self, test_set):
-        return
-
-
-
-
+        self.readTestFile(test_set)
+        for num, entry in nb.test_tweets.items():
+            print("{} : predicted({}), actual({})".format(num, self.getScore(entry), entry[1]))
 
     
 nb = NB_BOW_OV()
 nb.train("training/covid_training.tsv")
-print(nb.conditional_prob)
+nb.predict("test/test.tsv")
 
-    
-
-    
