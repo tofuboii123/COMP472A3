@@ -152,17 +152,28 @@ class NB_BOW_OV:
         # Return the max score and its class
         return (score["yes"], "yes") if score["yes"] >= score["no"] else (score["no"], "no")
 
+    
+    '''
+    Write trace file
+    '''
+    def writePredictions(self, trace_name):
+        with open(trace_name, "w") as f:
+            for num, entry in nb.test_tweets.items():
+                score, prediction = self.getScore(entry)
+                f.write("{}  {}  {:.2e}  {}  {}\n".format(num, prediction, score, entry[1], "correct" if prediction == entry[1] else "wrong"))
+
+
 
     '''
     Predict the results for each entry in the test set
     '''
-    def predict(self, test_set):
+    def predict(self, test_set, trace_name):
         self.readTestFile(test_set)
-        for num, entry in nb.test_tweets.items():
-            print("{} : predicted({}), actual({})".format(num, self.getScore(entry), entry[1]))
+        self.writePredictions(trace_name)
+        
 
     
 nb = NB_BOW_OV()
 nb.train("training/covid_training.tsv")
-nb.predict("test/test.tsv")
+nb.predict("test/covid_test_public.tsv", "trace/trace_NB-BOW-OV.txt")
 
