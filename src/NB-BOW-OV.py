@@ -157,11 +157,25 @@ class NB_BOW_OV:
     Write trace file
     '''
     def writePredictions(self, trace_name):
+        TP = 0
+        FP = 0 
+        FN = 0
+        TN = 0
         with open(trace_name, "w") as f:
             for num, entry in nb.test_tweets.items():
                 score, prediction = self.getScore(entry)
                 f.write("{}  {}  {:.2e}  {}  {}\n".format(num, prediction, score, entry[1], "correct" if prediction == entry[1] else "wrong"))
 
+                if prediction == "yes" and entry[1] == "yes":
+                    TP += 1
+                if prediction == "yes" and entry[1] == "no":
+                    FP += 1
+                if prediction == "no" and entry[1] == "yes":
+                    FN += 1
+                if prediction == "no" and entry[1] == "no":
+                    TN += 1
+        
+        return TP, FP, FN, TN
 
 
     '''
@@ -169,11 +183,29 @@ class NB_BOW_OV:
     '''
     def predict(self, test_set, trace_name):
         self.readTestFile(test_set)
-        self.writePredictions(trace_name)
-        
+        TP, FP, FN, TN = self.writePredictions(trace_name)
+        print("TP: " + str(TP))
+        print("FP: " + str(FP))
+        print("FN: " + str(FN))
+        print("TN: " + str(TN))
 
+    '''
+    Precision Calculation
+    '''
+    def precision(self, trace_name):
+        TP, FP, FN, TN = self.writePredictions(trace_name)
+        precisionValue = TP/(TP+FP)
+        return precisionValue
+        
+    '''
+    Recall Calculation
+    '''
+    def recall(self, trace_name):
+        TP, FP, FN, TN = self.writePredictions(trace_name)
+        recallValue = 
     
 nb = NB_BOW_OV()
-nb.train("training/covid_training.tsv")
-nb.predict("test/covid_test_public.tsv", "trace/trace_NB-BOW-OV.txt")
+nb.train("./training/covid_training.tsv")
+nb.predict("./test/covid_test_public.tsv", "./trace/trace_NB-BOW-OV.txt")
 
+print(nb.precision("./trace/trace_NB-BOW-OV.txt"))
