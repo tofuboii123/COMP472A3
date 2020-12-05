@@ -202,10 +202,12 @@ class NB_BOW_OV:
     '''
     def recall(self, trace_name):
         TP, FP, FN, TN = self.writePredictions(trace_name)
-        recallValue = 
+        recallValue = TP/(TP+FN)
+        return recallValue
     
 nb = NB_BOW_OV()
 nb.train("./training/covid_training.tsv")
 nb.predict("./test/covid_test_public.tsv", "./trace/trace_NB-BOW-OV.txt")
 
 print(nb.precision("./trace/trace_NB-BOW-OV.txt"))
+print(nb.recall("./trace/trace_NB-BOW-OV.txt"))
