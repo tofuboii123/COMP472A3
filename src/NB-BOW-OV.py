@@ -186,10 +186,7 @@ class NB_BOW_OV:
     def predict(self, test_set, trace_name):
         self.readTestFile(test_set)
         TP, FP, FN, TN, totalCorrect = self.writePredictions(trace_name)
-        print("TP: " + str(TP))
-        print("FP: " + str(FP))
-        print("FN: " + str(FN))
-        print("TN: " + str(TN))
+
 
     '''
     Accuracy
@@ -200,30 +197,34 @@ class NB_BOW_OV:
         accuracy = totalCorrect / totalWords
         return accuracy 
 
+
     '''
     Precision Calculation
     '''
     def precision(self, trace_name):
         TP, FP, FN, TN, totalCorrect = self.writePredictions(trace_name)
-        precisionValue = TP/(TP+FP)
-        return precisionValue
+        precisionValueA = TP/(TP+FP)
+        precisionValueB = TN/(TN+FN)
+        return precisionValueA, precisionValueB
         
     '''
     Recall Calculation
     '''
     def recall(self, trace_name):
         TP, FP, FN, TN, totalCorrect = self.writePredictions(trace_name)
-        recallValue = TP/(TP+FN)
-        return recallValue
+        recallValueA = TP/(TP+FN)
+        recallValueB = TN/(TN+FP)
+        return recallValueA, recallValueB
     
     '''
     FMeasure Calculation
     '''
-    def FMeasure(self, trace_name):
+    def F1Measure(self, trace_name):
         precision = self.precision(trace_name)
         recall = self.recall(trace_name)
-        fMeasure = (2 * precision * recall) / (precision + recall)
-        return fMeasure
+        f1MeasureA = (2 * precision[0] * recall[0]) / (precision[0] + recall[0])
+        f1MeasureB = (2 * precision[1] * recall[1]) / (precision[1] + recall[1])
+        return f1MeasureA, f1MeasureB 
     
 nb = NB_BOW_OV()
 nb.train("./training/covid_training.tsv")
@@ -233,4 +234,4 @@ nb.predict("./test/covid_test_public.tsv", "./trace/trace_NB-BOW-OV.txt")
 print(nb.accuracy("./trace/trace_NB-BOW-OV.txt"))
 print(nb.precision("./trace/trace_NB-BOW-OV.txt"))
 print(nb.recall("./trace/trace_NB-BOW-OV.txt"))
-print(nb.FMeasure("./trace/trace_NB-BOW-OV.txt"))
+print(nb.F1Measure("./trace/trace_NB-BOW-OV.txt"))
