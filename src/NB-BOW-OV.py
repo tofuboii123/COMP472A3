@@ -1,6 +1,7 @@
 import csv
 import math
 import operator
+import numpy as np
 
 class NB_BOW_OV:
 
@@ -226,12 +227,26 @@ class NB_BOW_OV:
         f1MeasureB = (2 * precision[1] * recall[1]) / (precision[1] + recall[1])
         return f1MeasureA, f1MeasureB 
     
+    def writeToText(self):
+        precision1, precision2 = self.precision("./trace/trace_NB-BOW-OV.txt")
+        recall1, recall2 = self.recall("./trace/trace_NB-BOW-OV.txt")
+        f1Measure1, f1Measure2 = self.F1Measure("./trace/trace_NB-BOW-OV.txt")
+        with open("./trace/eval_NB-BOW-OV.txt", "w") as file:
+            file.write("{:.4}\n".format(self.accuracy("./trace/trace_NB-BOW-OV.txt")))
+            file.write("{:.4}  {:.4}\n".format(precision1, precision2))
+            file.write("{:.4}  {:.4}\n".format(recall1, recall2))
+            file.write("{:.4}  {:.4}\n".format(f1Measure1, f1Measure2))
+        file.close()
+        
+    
+    
 nb = NB_BOW_OV()
 nb.train("./training/covid_training.tsv")
 nb.predict("./test/covid_test_public.tsv", "./trace/trace_NB-BOW-OV.txt")
+nb.writeToText()
 
 # Test for metrics
-print(nb.accuracy("./trace/trace_NB-BOW-OV.txt"))
-print(nb.precision("./trace/trace_NB-BOW-OV.txt"))
-print(nb.recall("./trace/trace_NB-BOW-OV.txt"))
-print(nb.F1Measure("./trace/trace_NB-BOW-OV.txt"))
+# print(nb.accuracy("./trace/trace_NB-BOW-OV.txt"))
+# print(nb.precision("./trace/trace_NB-BOW-OV.txt"))
+# print(nb.recall("./trace/trace_NB-BOW-OV.txt"))
+# print(nb.F1Measure("./trace/trace_NB-BOW-OV.txt"))
