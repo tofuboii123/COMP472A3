@@ -54,7 +54,7 @@ class NB_BOW_OV:
 
             # Go through each word in the tweet
             for word in splitTwt: 
-                word = word.strip(".,?!@#:\"“-—\'()").lower()      # Strip the words of punctuation and set them to lowercase
+                word = word.lower()      # Strip the words of punctuation and set them to lowercase
 
                 # Add the word to the vocabulary if it's not already in it
                 if not word in self.vocab:
@@ -125,7 +125,7 @@ class NB_BOW_OV:
         for entry in document:
             splitTwt = list(entry.split(" "))
             for w in splitTwt:
-                words.append(w.strip(".,?!@#:\"“-—\'()").lower())
+                words.append(w.lower())
 
         return words
 
@@ -246,7 +246,7 @@ nb.predict("./test/covid_test_public.tsv", "./trace/trace_NB-BOW-OV.txt")
 nb.writeToText()
 
 # Test for metrics
-# print(nb.accuracy("./trace/trace_NB-BOW-OV.txt"))
-# print(nb.precision("./trace/trace_NB-BOW-OV.txt"))
-# print(nb.recall("./trace/trace_NB-BOW-OV.txt"))
-# print(nb.F1Measure("./trace/trace_NB-BOW-OV.txt"))
+print(nb.accuracy("./trace/trace_NB-BOW-OV.txt"))
+print(nb.precision("./trace/trace_NB-BOW-OV.txt"))
+print(nb.recall("./trace/trace_NB-BOW-OV.txt"))
+print(nb.F1Measure("./trace/trace_NB-BOW-OV.txt"))
