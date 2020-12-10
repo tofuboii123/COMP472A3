@@ -55,7 +55,7 @@ class NB_BOW_FV:
 
             # Go through each word in the tweet
             for word in splitTwt: 
-                word = word.strip(".,?!@#:\"“-—\'()").lower()                        # Strip the words of punctuation and set them to lowercase
+                word = word.lower()                        # Strip the words of punctuation and set them to lowercase
                 
                 # Add the word to the vocabulary if it's not already in it
                 if not word in self.vocab:
@@ -129,7 +129,7 @@ class NB_BOW_FV:
         for entry in document:
             splitTwt = list(entry.split(" "))
             for w in splitTwt:
-                words.append(w.strip(".,?!@#:\"“-—\'()").lower())
+                words.append(w.lower())
 
         return words
 
@@ -180,5 +180,5 @@ class NB_BOW_FV:
     
 nb = NB_BOW_FV()
 nb.train("training/covid_training.tsv")
-nb.predict("test/covid_test_public.tsv", "trace/trace_NB-BOW-OV.txt")
+nb.predict("test/covid_test_public.tsv", "trace/trace_NB-BOW-FV.txt")
 
