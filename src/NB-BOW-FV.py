@@ -23,7 +23,7 @@ class NB_BOW_FV:
     def train(self, training_set_name):
         self.readTrainingFile(training_set_name)
         self.constructVocabulary()
-        # self.setTotalInClass()
+        self.setTotalInClass()
         self.setConditionalProb()
 
 
@@ -41,36 +41,38 @@ class NB_BOW_FV:
         
         self.getProbClass(factual)              # Get the probability of each class
 
-
     '''
     Construct the unfiltered vocabulary from the training set
     '''
     def constructVocabulary(self):
-
-        # Unfiltered vocabulary list to keep count of each word's frequency
+       
+        # Unfiltered vocabulary dictionary to keep count of each word's frequency and Filtered Vocabulary list 
         unfiltered_vocab = {}
-
+        
         # Go through each tweet and their factuality in the training set
         for twt, fact in self.training_tweets.items():
             splitTwt = list(twt.split(" "))        # Split the tweet into individual words
 
             # Go through each word in the tweet
             for word in splitTwt: 
-                word = word.strip(".,?!@#:\"“-—\'()").lower()                # Strip the words of punctuation and set them to lowercase
-
-                if(unfiltered_vocab[word] == None):                                  # Add the word as a new key if it isn't recorded yet
-                    unfiltered_vocab[word] = 1                                       # Put the value to 1 if it's a new word 
-                elif(unfiltered_vocab[word] == 1 and word not in self.vocab):        # If it's revisited, means the word appears at least twice  
-                    self.vocab[word] = {self.classes[0] : 0, self.classes[1] : 0}    # Add the word to the vocabulary if it's not already in it        
-
-                if fact == self.classes[0]:                                          # Keep count of the number of times the word appears in factual/non-factual self.tweets
-                    self.vocab[word][self.classes[0]] += 1
+                word = word.strip(".,?!@#:\"“-—\'()").lower()                        # Strip the words of punctuation and set them to lowercase
+                
+                # Add the word to the vocabulary if it's not already in it
+                if not word in self.vocab:
+                    unfiltered_vocab[word] = {self.classes[0] : 0, self.classes[1] : 0}
+                
+                # Keep count of the number of times the word appears in factual/non-factual self.tweets
+                if fact == self.classes[0]:
+                    unfiltered_vocab[word][self.classes[0]] += 1
                 elif fact == self.classes[1]:
-                    self.vocab[word][self.classes[1]] += 1
-        
-        self.setTotalInClass()
+                    unfiltered_vocab[word][self.classes[1]] += 1
+                
+        # Get all words with 2 or more factuals
+        for word in unfiltered_vocab.keys(): 
+            if((unfiltered_vocab[word][self.classes[0]] + unfiltered_vocab[word][self.classes[1]]) >= 2):
+                self.vocab[word][self.classes[0]] = unfiltered_vocab[word][self.classes[0]]
+                self.vocab[word][self.classes[0]] = unfiltered_vocab[word][self.classes[1]]
 
-    
     '''
     Get the total amount of words for each class
     '''
