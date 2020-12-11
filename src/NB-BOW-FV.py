@@ -163,11 +163,27 @@ class NB_BOW_FV:
     Write trace file
     '''
     def writePredictions(self, trace_name):
+        TP = 0
+        FP = 0 
+        FN = 0
+        TN = 0
+        totalCorrect = 0
         with open(trace_name, "w") as f:
             for num, entry in nb.test_tweets.items():
                 score, prediction = self.getScore(entry)
                 f.write("{}  {}  {:.2e}  {}  {}\n".format(num, prediction, score, entry[1], "correct" if prediction == entry[1] else "wrong"))
-
+                
+                if prediction == entry[1]:
+                    totalCorrect += 1
+                if prediction == "yes" and entry[1] == "yes":
+                    TP += 1
+                if prediction == "yes" and entry[1] == "no":
+                    FP += 1
+                if prediction == "no" and entry[1] == "yes":
+                    FN += 1
+                if prediction == "no" and entry[1] == "no":
+                    TN += 1
+        return TP, FP, FN, TN, totalCorrect
 
 
     '''
@@ -175,10 +191,61 @@ class NB_BOW_FV:
     '''
     def predict(self, test_set, trace_name):
         self.readTestFile(test_set)
-        self.writePredictions(trace_name)
-        
+        TP, FP, FN, TN, totalCorrect = self.writePredictions(trace_name)
 
+
+    '''
+    Accuracy
+    '''
+    def accuracy(self, trace_name):
+        TP, FP, FN, TN, totalCorrect = self.writePredictions(trace_name)
+        totalWords = len(nb.test_tweets.items())
+        accuracy = totalCorrect / totalWords
+        return accuracy 
+
+
+    '''
+    Precision Calculation
+    '''
+    def precision(self, trace_name):
+        TP, FP, FN, TN, totalCorrect = self.writePredictions(trace_name)
+        precisionValueA = TP/(TP+FP)
+        precisionValueB = TN/(TN+FN)
+        return precisionValueA, precisionValueB
+        
+    '''
+    Recall Calculation
+    '''
+    def recall(self, trace_name):
+        TP, FP, FN, TN, totalCorrect = self.writePredictions(trace_name)
+        recallValueA = TP/(TP+FN)
+        recallValueB = TN/(TN+FP)
+        return recallValueA, recallValueB
+    
+    '''
+    FMeasure Calculation
+    '''
+    def F1Measure(self, trace_name):
+        precision = self.precision(trace_name)
+        recall = self.recall(trace_name)
+        f1MeasureA = (2 * precision[0] * recall[0]) / (precision[0] + recall[0])
+        f1MeasureB = (2 * precision[1] * recall[1]) / (precision[1] + recall[1])
+        return f1MeasureA, f1MeasureB 
+    
+    def writeToText(self):
+        precision1, precision2 = self.precision("./trace/trace_NB-BOW-FV.txt")
+        recall1, recall2 = self.recall("./trace/trace_NB-BOW-FV.txt")
+        f1Measure1, f1Measure2 = self.F1Measure("./trace/trace_NB-BOW-FV.txt")
+        with open("./trace/eval_NB-BOW-FV.txt", "w") as file:
+            file.write("{:.4}\n".format(self.accuracy("./trace/trace_NB-BOW-FV.txt")))
+            file.write("{:.4}  {:.4}\n".format(precision1, precision2))
+            file.write("{:.4}  {:.4}\n".format(recall1, recall2))
+            file.write("{:.4}  {:.4}\n".format(f1Measure1, f1Measure2))
+        file.close()
+        
+    
     
 nb = NB_BOW_FV()
-nb.train("training/covid_training.tsv")
-nb.predict("test/covid_test_public.tsv", "trace/trace_NB-BOW-FV.txt")
+nb.train("./training/covid_training.tsv")
+nb.predict("./test/covid_test_public.tsv", "./trace/trace_NB-BOW-FV.txt")
+nb.writeToText()
