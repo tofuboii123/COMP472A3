@@ -242,16 +242,7 @@ class NB_BOW_OV:
     
 nb = NB_BOW_OV()
 nb.train("./training/covid_training.tsv")
-print(len(nb.vocab))
-
-print(nb.total_in_class["no"])
-print(nb.total_in_class["yes"])
-print(nb.total_in_class["yes"] + nb.total_in_class["no"])
 nb.predict("./test/covid_test_public.tsv", "./trace/trace_NB-BOW-OV.txt")
 nb.writeToText()
 
-# Test for metrics
-# print(nb.accuracy("./trace/trace_NB-BOW-OV.txt"))
-# print(nb.precision("./trace/trace_NB-BOW-OV.txt"))
-# print(nb.recall("./trace/trace_NB-BOW-OV.txt"))
-# print(nb.F1Measure("./trace/trace_NB-BOW-OV.txt"))
+
