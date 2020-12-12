@@ -14,7 +14,8 @@ class NB_BOW_FV:
         self.total_in_class = {}
         self.conditional_prob = {}
         self.prob_class = {}
-        self.test_tweets = {}   
+        self.test_tweets = {}
+        self.singleTime = []   
 
 
     '''
@@ -71,9 +72,9 @@ class NB_BOW_FV:
         for word in unfiltered_vocab.keys(): 
             if((unfiltered_vocab[word][self.classes[0]] + unfiltered_vocab[word][self.classes[1]]) >= 2):
                 self.vocab[word] = unfiltered_vocab[word]
+            else:
+                self.singleTime.append(word)
         
-        print(self.vocab)
-
     '''
     Get the total amount of words for each class
     '''
@@ -247,5 +248,12 @@ class NB_BOW_FV:
     
 nb = NB_BOW_FV()
 nb.train("./training/covid_training.tsv")
+print(len(nb.vocab))
+print(nb.total_in_class["no"])
+print(nb.total_in_class["yes"])
+print(nb.total_in_class["yes"] + nb.total_in_class["no"])
+
+print(len(nb.singleTime))
+
 nb.predict("./test/covid_test_public.tsv", "./trace/trace_NB-BOW-FV.txt")
 nb.writeToText()
