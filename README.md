@@ -16,6 +16,6 @@ Team AyeAyeAI:
 * Instruction: 
   * Any IDE that supports Python can run the program.
   * Run `main.py` to run both the Filtered and Unfiltered NB-BOW
-  * Trace files are generated in	the "trace" directory
+  * Trace files are generated in the "trace" directory
   * Evaluation files are generated in the "eval" directory
   * Evaluation and Trace files from LSTM located in the "LSTM output" directory
