@@ -209,17 +209,34 @@ class NB_BOW_OV:
     '''
     def precision(self):
         TP, FP, FN, TN, totalCorrect = self.writePredictions()
-        precisionValueA = TP/(TP+FP)
-        precisionValueB = TN/(TN+FN)
+        
+        precisionValueA = 0
+        precisionValueB = 0
+
+        if TP + FP != 0:
+            precisionValueA = TP/(TP+FP)
+        
+        if TN + FN != 0:
+            precisionValueB = TN/(TN+FN)
+
         return precisionValueA, precisionValueB
         
+
     '''
     Recall Calculation
     '''
     def recall(self):
         TP, FP, FN, TN, totalCorrect = self.writePredictions()
-        recallValueA = TP/(TP+FN)
-        recallValueB = TN/(TN+FP)
+
+        recallValueA = 0
+        recallValueB = 0
+
+        if TP + FN != 0:
+            recallValueA = TP/(TP+FN)
+        
+        if TN + FP != 0:
+            recallValueB = TN/(TN+FP)
+
         return recallValueA, recallValueB
     
     '''
@@ -228,8 +245,16 @@ class NB_BOW_OV:
     def F1Measure(self):
         precision = self.precision()
         recall = self.recall()
-        f1MeasureA = (2 * precision[0] * recall[0]) / (precision[0] + recall[0])
-        f1MeasureB = (2 * precision[1] * recall[1]) / (precision[1] + recall[1])
+        
+        f1MeasureA = 0
+        f1MeasureB = 0
+
+        if precision[0] + recall[0] != 0:
+            f1MeasureA = (2 * precision[0] * recall[0]) / (precision[0] + recall[0])
+        
+        if precision[1] + recall[1] != 0:
+            f1MeasureB = (2 * precision[1] * recall[1]) / (precision[1] + recall[1])
+
         return f1MeasureA, f1MeasureB 
     
     def writeMetricsToText(self):
@@ -238,7 +263,7 @@ class NB_BOW_OV:
         f1Measure1, f1Measure2 = self.F1Measure()
         with open(self.eval_name, "w") as file:
             file.write("{:.4}\n".format(self.accuracy()))
-            file.write("{:.4}  {:.4}\n".format(precision1, precision2))
-            file.write("{:.4}  {:.4}\n".format(recall1, recall2))
-            file.write("{:.4}  {:.4}\n".format(f1Measure1, f1Measure2))
+            file.write("{:.4}  {:.4}\n".format(float(precision1), float(precision2)))
+            file.write("{:.4}  {:.4}\n".format(float(recall1), float(recall2)))
+            file.write("{:.4}  {:.4}\n".format(float(f1Measure1), float(f1Measure2)))
         file.close()
