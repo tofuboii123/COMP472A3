@@ -68,8 +68,6 @@ class NB_BOW_OV:
                 elif fact == self.classes[1]:
                     self.vocab[word][self.classes[1]] += 1
         
-        self.setTotalInClass()
-
     
     '''
     Get the total amount of words for each class
